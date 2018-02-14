@@ -1,0 +1,3 @@
+alc_web_service.users:
+    type:       rest
+    resource: ALC\WebServiceBundle\Controller\UsersController

@@ -1,0 +1,4 @@
+services:
+#    alc_web_service.example:
+#        class: ALC\WebServiceBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

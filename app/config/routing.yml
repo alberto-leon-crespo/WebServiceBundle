@@ -1,0 +1,6 @@
+alc_web_service:
+    resource: "@ALCWebServiceBundle/Resources/config/routing.yml"
+    prefix:   /{_locale}/
+    type:     rest
+    defaults:
+        _format: json

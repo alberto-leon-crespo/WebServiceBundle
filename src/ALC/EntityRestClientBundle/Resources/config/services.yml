@@ -1,0 +1,7 @@
+services:
+    alc_entity_rest_client.handler:
+        class: ALC\EntityRestClientBundle\Services\RestEntityHandler\RestEntityHandler
+        arguments: ["%alc_entity_rest_client%", "@session", "%kernel.bundles%", "@jms_serializer"]
+    alc_entity_rest_client.request_entity_decoder:
+        class: ALC\EntityRestClientBundle\Services\RequestEntityDecoder
+        arguments: ["@request_stack"]
