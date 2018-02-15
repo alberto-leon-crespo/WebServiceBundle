@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Users
 {
     /**
+     * @Rest\Id()
      * @Rest\Field("id")
      * @Serializer\Type("integer")
      * @Serializer\SerializedName("id")

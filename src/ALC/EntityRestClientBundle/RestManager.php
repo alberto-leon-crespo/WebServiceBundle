@@ -30,8 +30,7 @@ abstract class RestManager
         $this->guzzleHttpCookieJar = ( $this->guzzleHttpConnections !== null && array_key_exists( $this->config['session_name'], $this->guzzleHttpConnections ) ) ? $this->guzzleHttpConnections[ $this->config['session_name'] ] : new CookieJar();
 
         $this->guzzleHttpClient = new Client([
-            'verify' => false,
-            'timeout' => $this->config['session_timeout']
+            'verify' => false
         ]);
 
         return $this;
@@ -45,7 +44,7 @@ abstract class RestManager
      * @param array $arrHeaders
      * @return \GuzzleHttp\Message\Request|\GuzzleHttp\Message\RequestInterface|\GuzzleHttp\Message\ResponseInterface|null
      */
-    protected function doRequest( $strPath, $strMethod, $arrParams = array(), array $arrHeaders = array() ){
+    public function doRequest( $strPath, $strMethod, $arrParams = array(), array $arrHeaders = array() ){
 
         $arrGuzzleHttpOptions = array();
 

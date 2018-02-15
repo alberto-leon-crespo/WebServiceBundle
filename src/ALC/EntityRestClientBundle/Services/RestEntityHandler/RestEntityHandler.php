@@ -24,9 +24,17 @@ class RestEntityHandler extends RestManager
     private $serializer;
     private $annotationReader;
     private $path;
-    private $headers = array();
     private $fieldsMap;
+    private $entityIdValue;
+    private $headers = array(
+        'content-type' => 'application/json'
+    );
     private $deserilizationFormats = array(
+        'application/json' => 'json',
+        'application/xml' => 'xml',
+        'application/html' => 'xml'
+    );
+    private $serializationFormats = array(
         'application/json' => 'json',
         'application/xml' => 'xml',
         'application/html' => 'xml'
@@ -64,7 +72,7 @@ class RestEntityHandler extends RestManager
 
         if( !array_key_exists( $strManagerName, $this->bundleConfig['managers'] ) ){
 
-            throw new InvalidParamsException( 400, "Restmanager that you can try to load <$strManagerName> is not defined under alc_entity_rest_client.managers", null, array(), __CLASS__ . ':' . __FUNCTION__ . ':' . __LINE__ );
+            throw new InvalidParamsException( 400, "Restmanager that you can try to load <$strManagerName> is not defined under alc_entity_rest_client.managers" );
 
         }
 
@@ -88,7 +96,7 @@ class RestEntityHandler extends RestManager
 
         if( !array_key_exists( $bundleName, $this->bundles ) ){
 
-            throw new InvalidParamsException( 400, "Bundle <$bundleName> doesn't exist loaded  in symfony configuration.", null, array(), __CLASS__ . ':' . __FUNCTION__ . ':' . __LINE__ );
+            throw new InvalidParamsException( 400, "Bundle <$bundleName> doesn't exist loaded  in symfony configuration." );
 
         }
 
@@ -102,7 +110,7 @@ class RestEntityHandler extends RestManager
 
         if( !class_exists( $classNamespace ) ){
 
-            throw new InvalidParamsException( 400, "Class $classNamespace doesn't exist.", null, array(), __CLASS__ . ':' . __FUNCTION__ . ':' . __LINE__ );
+            throw new InvalidParamsException( 400, "Class $classNamespace doesn't exist." );
 
         }
 
@@ -119,13 +127,22 @@ class RestEntityHandler extends RestManager
         return $this->deserializeResponse( $response, $format, $objClass );
     }
 
-    public function findOneBy( array $arrFilters, $format = 'json', $objClass = null )
+    public function findBy( array $arrFilters, $format = 'json', $objClass = null )
     {
         $arrParams = $this->matchEntityFieldsWithResourceFields( $arrFilters );
 
         $response = $this->get( $this->path, $arrParams, $this->headers );
 
         return $this->deserializeResponse( $response, $format, $objClass );
+    }
+
+    public function findOneBy( array $arrFilters, $format = 'json', $objClass = null )
+    {
+        $arrParams = $this->matchEntityFieldsWithResourceFields( $arrFilters );
+
+        $response = $this->get( $this->path, $arrParams, $this->headers );
+
+        return $this->deserializeResponse( $response, $format, $objClass )[0];
     }
 
     public function findAll( $format = 'json', $objClass = null )
@@ -142,9 +159,38 @@ class RestEntityHandler extends RestManager
     {
         $this->readClassAnnotations( $object );
 
-        $payload = $this->serializer->serialize( $object, 'json' );
+        $arrHeaders = array();
+        $serializationFormat = 'json';
 
-        $response = $this->post( $this->path, $payload );
+        foreach( $this->headers as $header => $value ){
+
+            if( strpos( 'content-type', $header ) !== false  ||  strpos( 'Content-type', $header ) !== false || strpos( 'CONTENT-TYPE', $header ) !== false ){
+
+                $headers[$header] = $value;
+
+                $serializationFormat = $this->serializationFormats[$value];
+
+                if( !array_key_exists( $value, $this->serializationFormats ) ){
+
+                    throw new RunTimeException(400, "Content type serialization is not suported. Suported types are " . implode( ",", $this->serializationFormats ) );
+
+                }
+
+            }
+
+        }
+
+        $payload = $this->serializer->serialize( $object, $serializationFormat );
+
+        if( $this->entityIdValue !== null ){
+
+            $response = $this->put( $this->path . '/' . $this->entityIdValue, $payload, $arrHeaders );
+
+        }else{
+
+            $response = $this->post( $this->path, $payload, $arrHeaders );
+
+        }
 
         return $this->deserializeResponse( $response, $format, $objClass );
     }
@@ -152,17 +198,44 @@ class RestEntityHandler extends RestManager
     /**
      * {@inheritdoc}
      */
-    public function remove($object)
+    public function remove( $object, $format = 'json', $objClass = null )
     {
-        return $this->wrapped->remove($object);
+        $this->readClassAnnotations( $object );
+
+        $arrHeaders = array();
+        $serializationFormat = 'json';
+
+        foreach( $this->headers as $header => $value ){
+
+            if( strpos( 'content-type', $header ) !== false  ||  strpos( 'Content-type', $header ) !== false || strpos( 'CONTENT-TYPE', $header ) !== false ){
+
+                $headers[$header] = $value;
+
+                $serializationFormat = $this->serializationFormats[$value];
+
+                if( !array_key_exists( $value, $this->serializationFormats ) ){
+
+                    throw new RunTimeException(400, "Content type serialization is not suported. Suported types are " . implode( ",", $this->serializationFormats ) );
+
+                }
+
+            }
+
+        }
+
+        $response = $this->detete( $this->path . '/' . $this->entityIdValue, $arrHeaders );
+
+        return $this->deserializeResponse( $response, $format, $objClass );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function merge($object)
+    public function merge( $object, $format = 'json', $objClass = null )
     {
-        return $this->wrapped->merge($object);
+        $this->readClassAnnotations( $object );
+
+        if( )
     }
 
     /**
@@ -187,18 +260,6 @@ class RestEntityHandler extends RestManager
     public function refresh($object)
     {
         return $this->wrapped->refresh($object);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function flush()
-    {
-        $this->path = null;
-        $this->headers = null;
-        $this->fieldsMap = null;
-
-        return $this;
     }
 
     private function readClassAnnotations( $classNamespace ){
@@ -242,6 +303,12 @@ class RestEntityHandler extends RestManager
 
                     }
 
+                    if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Id" ){
+
+                        $this->entityIdValue = $property->getValue( $classNamespace );
+
+                    }
+
                 }
 
             }
@@ -258,40 +325,38 @@ class RestEntityHandler extends RestManager
      */
     private function deserializeResponse( Response $response, $format = 'json', $objClass = null ){
 
-        if( $response->getStatusCode() )
+        if( $format == 'json' ){
 
-            if( $format == 'json' ){
+            return $response->json();
 
-                return $response->json();
+        }else if( $format == 'xml' ){
 
-            }else if( $format == 'xml' ){
+            return $response->xml();
 
-                return $response->xml();
+        }else if( $format = 'object' && $objClass !== null ){
 
-            }else if( $format = 'object' && $objClass !== null ){
+            $detectedFormat = false;
 
-                $detectedFormat = false;
+            foreach( $this->deserilizationFormats as $header => $format ){
 
-                foreach( $this->deserilizationFormats as $header => $format ){
+                if( strpos( $response->getHeader('content-type'), $header ) !== false ){
 
-                    if( strpos( $response->getHeader('content-type'), $header ) !== false ){
-
-                        $detectedFormat = true;
-                        $deserializeFormat = $this->deserilizationFormats[$header];
-
-                    }
+                    $detectedFormat = true;
+                    $deserializeFormat = $this->deserilizationFormats[$header];
 
                 }
-
-                if( $detectedFormat === false ){
-
-                    throw new RunTimeException(400, "Unserialized format <" . $response->getHeader('content-type') . "> is not supported.", null, $response->getHeaders(), 0 );
-
-                }
-
-                return $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
 
             }
+
+            if( $detectedFormat === false ){
+
+                throw new RunTimeException(400, "Unserialized format <" . $response->getHeader('content-type') . "> is not supported.", null, $response->getHeaders(), 0 );
+
+            }
+
+            return $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
+
+        }
 
     }
 
