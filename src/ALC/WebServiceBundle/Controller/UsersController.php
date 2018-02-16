@@ -22,8 +22,6 @@ class UsersController extends FOSRestController
 
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
-        $objUsersRespository->
-
         if( empty( $arrFilters ) ){
 
             $arrUsers = $objUsersRespository->findAll( 'object', 'array<ALC\\WebServiceBundle\\Entity\\Users\\Users>' );

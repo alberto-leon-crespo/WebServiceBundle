@@ -26,14 +26,18 @@ class RestEntityHandler extends RestManager
     private $path;
     private $fieldsMap;
     private $entityIdValue;
+    private $entityIdFieldName;
+
     private $headers = array(
         'content-type' => 'application/json'
     );
+
     private $deserilizationFormats = array(
         'application/json' => 'json',
         'application/xml' => 'xml',
         'application/html' => 'xml'
     );
+
     private $serializationFormats = array(
         'application/json' => 'json',
         'application/xml' => 'xml',
@@ -203,6 +207,33 @@ class RestEntityHandler extends RestManager
         $this->readClassAnnotations( $object );
 
         $arrHeaders = array();
+
+        foreach( $this->headers as $header => $value ){
+
+            if( strpos( 'content-type', $header ) !== false  ||  strpos( 'Content-type', $header ) !== false || strpos( 'CONTENT-TYPE', $header ) !== false ){
+
+                $headers[$header] = $value;
+
+                if( !array_key_exists( $value, $this->serializationFormats ) ){
+
+                    throw new RunTimeException(400, "Content type serialization is not suported. Suported types are " . implode( ",", $this->serializationFormats ) );
+
+                }
+
+            }
+
+        }
+
+        $response = $this->detete( $this->path . '/' . $this->entityIdValue, $arrHeaders );
+
+        return $this->deserializeResponse( $response, $format, $objClass );
+    }
+
+    public function merge( $object, $format = 'json', $objClass = null ){
+
+        $this->readClassAnnotations( $object );
+
+        $arrHeaders = array();
         $serializationFormat = 'json';
 
         foreach( $this->headers as $header => $value ){
@@ -223,7 +254,32 @@ class RestEntityHandler extends RestManager
 
         }
 
-        $response = $this->detete( $this->path . '/' . $this->entityIdValue, $arrHeaders );
+        $response = $this->find( $this->entityIdValue, 'json' );
+
+        $payload = $this->serializer->serialize( $object, $serializationFormat );
+
+        $idFieldName = $this->entityIdFieldName;
+        $keyExist = false;
+
+        array_walk_recursive( $response, function( $key ) use ( $idFieldName, &$keyExist ){
+
+            if( $key == $idFieldName ){
+
+                $keyExist = true;
+
+            }
+
+        });
+
+        if( $keyExist ){
+
+            $response = $this->put( $this->path, $payload, $arrHeaders );
+
+        }else{
+
+            $response = $this->post( $this->path, $payload, $arrHeaders );
+
+        }
 
         return $this->deserializeResponse( $response, $format, $objClass );
     }
@@ -231,35 +287,34 @@ class RestEntityHandler extends RestManager
     /**
      * {@inheritdoc}
      */
-    public function merge( $object, $format = 'json', $objClass = null )
+    public function refresh( &$object, $format = 'json', $objClass = null )
     {
         $this->readClassAnnotations( $object );
 
-        if( )
-    }
+        $refreshingData = $this->find( $this->entityIdValue, $format, $objClass );
 
-    /**
-     * {@inheritdoc}
-     */
-    public function clear($objectName = null)
-    {
-        return $this->wrapped->clear($objectName);
-    }
+        $idFieldName = $this->entityIdFieldName;
+        $keyExist = false;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function detach($object)
-    {
-        return $this->wrapped->detach($object);
-    }
+        array_walk_recursive( $response, function( $key ) use ( $idFieldName, &$keyExist ){
 
-    /**
-     * {@inheritdoc}
-     */
-    public function refresh($object)
-    {
-        return $this->wrapped->refresh($object);
+            if( $key == $idFieldName ){
+
+                $keyExist = true;
+
+            }
+
+        });
+
+        if( $keyExist ){
+
+            $object = $refreshingData;
+
+            return $object;
+
+        }
+
+        return $object;
     }
 
     private function readClassAnnotations( $classNamespace ){
@@ -295,9 +350,9 @@ class RestEntityHandler extends RestManager
 
                 foreach( $arrPropertiesAnnotations as $propertyAnnotation ){
 
-                    if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Field" ){
+                    $property->setAccessible( true );
 
-                        $property->setAccessible( true );
+                    if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Field" ){
 
                         $this->fieldsMap[ $property->getName() ] = $propertyAnnotation->getName();
 
@@ -306,6 +361,7 @@ class RestEntityHandler extends RestManager
                     if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Id" ){
 
                         $this->entityIdValue = $property->getValue( $classNamespace );
+                        $this->entityIdFieldName = $property->getName();
 
                     }
 
