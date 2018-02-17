@@ -12,12 +12,16 @@ namespace ALC\EntityRestClientBundle\Listeners;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\Exception\RuntimeException;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\NullAwareVisitorInterface;
 
 class PreDeserialize implements EventSubscriberInterface
 {
     private $fieldsMap;
     private $fieldsValues;
-    private $fieldsTypes;
+    private $fieldsType;
 
     public function __construct( SessionInterface $session )
     {
@@ -38,18 +42,12 @@ class PreDeserialize implements EventSubscriberInterface
 
     public function onSerializerPreDeserialize( PreDeserializeEvent $event ){
 
-        $classType = $event->getType();
-
-        if( !empty( $classType['name'] ) ){
-
-            return $event;
-
-        }
-
-        $classMetadata = $event->getContext()->getMetadataFactory()->getMetadataForClass( $classType['name'] );
+        $type = $event->getType();
         $context = $event->getContext();
         $data = $event->getData();
         $visitor = $event->getVisitor();
+
+        $classMetadata = $event->getContext()->getMetadataFactory()->getMetadataForClass( $type['name'] );
 
         foreach( $this->fieldsMap as $originalFieldName => $targetFieldName ){
 
@@ -61,7 +59,7 @@ class PreDeserialize implements EventSubscriberInterface
                 $classMetadata->propertyMetadata[$originalFieldName]->xmlElementCData = false;
 
                 $classMetadata->propertyMetadata[$originalFieldName]->type = array(
-                    'name' => $this->fieldsTypes[ $targetFieldName ],
+                    'name' => $this->fieldsType[ $originalFieldName ],
                     'params' => []
                 );
 
@@ -69,13 +67,9 @@ class PreDeserialize implements EventSubscriberInterface
 
         }
 
-
-        dump( $classMetadata );
-        die();
-
         $context->pushClassMetadata( $classMetadata );
 
-//        return $event;
+        return $event;
 
     }
 }
