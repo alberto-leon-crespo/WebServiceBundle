@@ -19,64 +19,48 @@ class Users
 {
     /**
      * @Rest\Id()
-     * @Rest\Field("id")
-     * @Serializer\Type("integer")
-     * @Serializer\SerializedName("id")
+     * @Rest\Field(target="id",type="integer")
      */
     private $idUsuario;
 
     /**
-     * @Rest\Field("name")
-     * @Serializer\Type("string")
-     * @Serializer\SerializedName("name")
+     * @Rest\Field(target="name",type="string")
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
     private $nombre;
 
     /**
-     * @Rest\Field("username")
-     * @Serializer\Type("string")
-     * @Serializer\SerializedName("username")
+     * @Rest\Field(target="username",type="string")
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
     private $nombreUsuario;
 
     /**
-     * @Rest\Field("email")
-     * @Serializer\Type("string")
-     * @Serializer\SerializedName("email")
+     * @Rest\Field(target="email",type="string")
      * @Assert\NotNull()
      * @Assert\NotBlank()
      */
     private $email;
 
     /**
-     * @Rest\Field("address")
-     * @Serializer\Type("array")
-     * @Serializer\SerializedName("address")
+     * @Rest\Field(target="address",type="array")
      */
     private $direccion;
 
     /**
-     * @Rest\Field("phone")
-     * @Serializer\Type("string")
-     * @Serializer\SerializedName("phone")
+     * @Rest\Field(target="phone",type="string")
      */
     private $telefono;
 
     /**
-     * @Rest\Field("website")
-     * @Serializer\Type("string")
-     * @Serializer\SerializedName("website")
+     * @Rest\Field(target="website",type="string")
      */
     private $sitioWeb;
 
     /**
-     * @Rest\Field("company")
-     * @Serializer\Type("array")
-     * @Serializer\SerializedName("company")
+     * @Rest\Field(target="company",type="array")
      */
     private $compania;
 

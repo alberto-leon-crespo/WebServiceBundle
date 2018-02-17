@@ -16,18 +16,28 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Field
 {
-    private $name;
+    private $target;
+    private $type;
 
     public function __construct( $options )
     {
-        $this->name = !empty( $options['name'] ) ? $options['name'] : $options['value'];
+        $this->target = !empty( $options['target'] ) ? $options['target'] : $options['value'];
+        $this->type = !empty( $options['type'] ) ? $options['type'] : 'string';
     }
 
     /**
      * @return mixed
      */
-    public function getName()
+    public function getTarget()
     {
-        return $this->name;
+        return $this->target;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }
