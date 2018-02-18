@@ -9,25 +9,32 @@
 namespace ALC\EntityRestClientBundle\Listeners;
 
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use JMS\Serializer\Construction\DoctrineObjectConstructor;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
+use JMS\Serializer\EventDispatcher\LazyEventDispatcher;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use JMS\Serializer\DeserializationContext;
-use JMS\Serializer\Exception\RuntimeException;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\NullAwareVisitorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use JMS\Serializer\Construction\UnserializeObjectConstructor;
 
 class PreDeserialize implements EventSubscriberInterface
 {
     private $fieldsMap;
     private $fieldsValues;
     private $fieldsType;
+    private $annotationReader;
+    private $attributesBag;
+    private $doctrineObjectConstructor;
+    private $anidateObject = false;
 
-    public function __construct( SessionInterface $session )
+    public function __construct( RequestStack $requestStack, UnserializeObjectConstructor $doctrineObjectConstructor )
     {
-        $this->fieldsMap = $session->get('alc_entity_rest_client.handler.fieldsMap');
-        $this->fieldsValues = $session->get('alc_entity_rest_client.handler.fieldsValues');
-        $this->fieldsType = $session->get('alc_entity_rest_client.handler.fieldsType');
+        $this->attributesBag = $requestStack->getMasterRequest()->attributes;
+        $this->fieldsMap = $this->attributesBag->get('alc_entity_rest_client.handler.fieldsMap');
+        $this->fieldsValues = $this->attributesBag->get('alc_entity_rest_client.handler.fieldsValues');
+        $this->fieldsType = $this->attributesBag->get('alc_entity_rest_client.handler.fieldsType');
+        $this->annotationReader = new AnnotationReader();
+        $this->doctrineObjectConstructor = $doctrineObjectConstructor;
     }
 
     static public function getSubscribedEvents()
@@ -49,6 +56,13 @@ class PreDeserialize implements EventSubscriberInterface
 
         $classMetadata = $event->getContext()->getMetadataFactory()->getMetadataForClass( $type['name'] );
 
+        if( empty( $this->fieldsMap ) ){
+
+            $this->readClassAnnotations( $type['name'] );
+            $this->anidateObject = true;
+
+        }
+
         foreach( $this->fieldsMap as $originalFieldName => $targetFieldName ){
 
             if( array_key_exists( $originalFieldName, $this->fieldsMap ) ){
@@ -59,17 +73,64 @@ class PreDeserialize implements EventSubscriberInterface
                 $classMetadata->propertyMetadata[$originalFieldName]->xmlElementCData = false;
 
                 $classMetadata->propertyMetadata[$originalFieldName]->type = array(
-                    'name' => $this->fieldsType[ $originalFieldName ],
+                    'name' => $this->fieldsType[$originalFieldName],
                     'params' => []
                 );
 
+                unset( $this->fieldsMap[ $originalFieldName ] );
+
             }
+
+        }
+
+        if( $this->anidateObject ){
+
+            return $this->doctrineObjectConstructor->construct( $visitor, $classMetadata, $data, $type, $context );
 
         }
 
         $context->pushClassMetadata( $classMetadata );
 
         return $event;
+
+    }
+
+    private function readClassAnnotations( $classNamespace ){
+
+        $objClassInstanceReflection = new \ReflectionClass( $classNamespace );
+
+        if( !empty( $objClassInstanceReflection->getProperties() ) ){
+
+            foreach( $objClassInstanceReflection->getProperties() as $property ){
+
+                $property->setAccessible( true );
+
+                $arrPropertiesAnnotations = $this->annotationReader->getPropertyAnnotations( $property );
+
+                foreach( $arrPropertiesAnnotations as $propertyAnnotation ){
+
+                    if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Field" ){
+
+                        $this->fieldsMap[ $property->getName() ] = $propertyAnnotation->getTarget();
+                        $this->fieldsType[ $property->getName() ] = $propertyAnnotation->getType();
+
+                        if( is_object( $classNamespace ) ){
+
+                            $this->fieldsValues[ $property->getName() ] = $property->getValue( $classNamespace );
+
+                        }else{
+
+                            $this->fieldsValues[ $property->getName() ] = null;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
 
     }
 }

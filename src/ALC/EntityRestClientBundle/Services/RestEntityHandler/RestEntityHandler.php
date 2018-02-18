@@ -12,6 +12,7 @@ use ALC\EntityRestClientBundle\RestManager;
 use ALC\EntityRestClientBundle\Services\RestEntityHandler\Exception\InvalidParamsException;
 use GuzzleHttp\Message\Response;
 use JMS\Serializer\Serializer;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use ALC\EntityRestClientBundle\Services\RestEntityHandler\Exception\RunTimeException;
@@ -22,6 +23,7 @@ class RestEntityHandler extends RestManager
     private $session;
     private $bundles;
     private $serializer;
+    private $attibutesBag;
     private $annotationReader;
     private $path;
     private $fieldsMap;
@@ -52,9 +54,9 @@ class RestEntityHandler extends RestManager
      * @param SessionInterface $session
      * @param array $bundles
      * @param Serializer $serializer
-     * @param ContainerAwareInterface $container
+     * @param RequestStack $requestStack
      */
-    public function __construct( array $config, SessionInterface $session, array $bundles, Serializer $serializer ){
+    public function __construct( array $config, SessionInterface $session, array $bundles, Serializer $serializer, RequestStack $requestStack ){
 
         parent::__construct( $config['managers'][ $config['default_manager'] ], $session );
 
@@ -62,6 +64,7 @@ class RestEntityHandler extends RestManager
         $this->session = $session;
         $this->bundles = $bundles;
         $this->serializer = $serializer;
+        $this->attibutesBag = $requestStack->getMasterRequest()->attributes;
         $this->annotationReader = new AnnotationReader();
 
         return $this;
@@ -387,9 +390,9 @@ class RestEntityHandler extends RestManager
 
             }
 
-            $this->session->set( 'alc_entity_rest_client.handler.fieldsMap', $this->fieldsMap );
-            $this->session->set( 'alc_entity_rest_client.handler.fieldsType', $this->fieldsType );
-            $this->session->set( 'alc_entity_rest_client.handler.fieldsValues', $this->fieldsValues );
+            $this->attibutesBag->set( 'alc_entity_rest_client.handler.fieldsMap', $this->fieldsMap );
+            $this->attibutesBag->set( 'alc_entity_rest_client.handler.fieldsType', $this->fieldsType );
+            $this->attibutesBag->set( 'alc_entity_rest_client.handler.fieldsValues', $this->fieldsValues );
         }
 
     }

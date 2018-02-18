@@ -45,7 +45,7 @@ class Users
     private $email;
 
     /**
-     * @Rest\Field(target="address",type="array")
+     * @Rest\Field(target="address",type="ALC\WebServiceBundle\Entity\Address\Address")
      */
     private $direccion;
 
