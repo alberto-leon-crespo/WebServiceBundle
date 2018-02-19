@@ -28,6 +28,16 @@ class Address
     private $ciudad;
 
     /**
+     * @Field(target="zipcode",type="string")
+     */
+    private $codigoPostal;
+
+    /**
+     * @Field(target="geo",type="ALC\WebServiceBundle\Entity\Geo\Geo")
+     */
+    private $geo;
+
+    /**
      * @return mixed
      */
     public function getCalle()

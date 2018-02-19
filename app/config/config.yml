@@ -85,6 +85,8 @@ fos_rest:
         default_format: json
     serializer:
         serialize_null: true
+    service:
+        view_handler: alc_entity_rest_client.view_handler
     exception:
         enabled: true
 #        exception_controller: 'InterMundial\WebServiceBundle\Controller\ExcepcionesController::normalizarAction'

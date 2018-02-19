@@ -10,12 +10,11 @@ namespace ALC\EntityRestClientBundle\Listeners;
 
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use JMS\Serializer\Construction\DoctrineObjectConstructor;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
-use JMS\Serializer\EventDispatcher\LazyEventDispatcher;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
+use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 
 class PreDeserialize implements EventSubscriberInterface
 {
@@ -42,12 +41,12 @@ class PreDeserialize implements EventSubscriberInterface
         return array(
             array(
                 'event' => 'serializer.pre_deserialize',
-                'method' => 'onPreDeserialize'
-            ),
+                'method' => 'onserializerPreDeserialize'
+            )
         );
     }
 
-    public function onSerializerPreDeserialize( PreDeserializeEvent $event ){
+    public function onserializerPreDeserialize( PreDeserializeEvent $event ){
 
         $type = $event->getType();
         $context = $event->getContext();

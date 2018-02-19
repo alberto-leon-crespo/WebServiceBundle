@@ -440,6 +440,8 @@ class RestEntityHandler extends RestManager
 
             $this->readClassAnnotations( $className );
 
+            $this->attibutesBag->set( 'alc_entity_rest_client.procesedEntity', $className );
+
             return $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
 
         }
@@ -461,15 +463,5 @@ class RestEntityHandler extends RestManager
         }
 
         return $arrayMatchedParams;
-    }
-
-    public function getFieldsData(){
-
-        return array(
-            'fieldsMap' => $this->fieldsMap,
-            'fieldsValues' => $this->fieldsValues,
-            'fieldsType' => $this->fieldsType
-        );
-
     }
 }

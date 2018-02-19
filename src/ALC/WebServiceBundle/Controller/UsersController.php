@@ -11,6 +11,7 @@ namespace ALC\WebServiceBundle\Controller;
 use ALC\WebServiceBundle\Utils\ArrayUtils;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends FOSRestController
 {
@@ -32,7 +33,7 @@ class UsersController extends FOSRestController
 
         }
 
-        return ArrayUtils::recursiveObjectToArray( $arrUsers );
+        return $arrUsers;
 
     }
 

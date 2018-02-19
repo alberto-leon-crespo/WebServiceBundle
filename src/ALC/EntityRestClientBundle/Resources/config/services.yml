@@ -7,3 +7,10 @@ services:
         arguments: ["@request_stack","@jms_serializer.object_constructor"]
         tags:
             - { name: 'jms_serializer.event_listener', event: 'serializer.pre_deserialize' }
+    alc_entity_rest_client.response_handler:
+        class: ALC\EntityRestClientBundle\Services\ResponseHandler\ResponseHandler
+    alc_entity_rest_client.view_handler:
+        parent: fos_rest.view_handler.default
+        calls:
+            - [ 'registerHandler', [ 'json', [ "@alc_entity_rest_client.response_handler", 'createResponse' ] ] ]
+            - [ 'registerHandler', [ 'xml', [ "@alc_entity_rest_client.response_handler", 'createResponse' ] ] ]
