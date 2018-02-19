@@ -59,7 +59,7 @@ class Users
     private $sitioWeb;
 
     /**
-     * @Rest\Field(target="company",type="array")
+     * @Rest\Field(target="company",type="ALC\WebServiceBundle\Entity\Companies\Companies")
      */
     private $compania;
 
