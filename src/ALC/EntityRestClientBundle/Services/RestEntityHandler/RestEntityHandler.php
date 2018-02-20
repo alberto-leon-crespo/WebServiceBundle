@@ -12,6 +12,7 @@ use ALC\EntityRestClientBundle\RestManager;
 use ALC\EntityRestClientBundle\Services\RestEntityHandler\Exception\InvalidParamsException;
 use GuzzleHttp\Message\Response;
 use JMS\Serializer\Serializer;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use ALC\EntityRestClientBundle\Services\RestEntityHandler\Exception\RunTimeException;
@@ -22,9 +23,12 @@ class RestEntityHandler extends RestManager
     private $session;
     private $bundles;
     private $serializer;
+    private $attibutesBag;
     private $annotationReader;
     private $path;
     private $fieldsMap;
+    private $fieldsType;
+    private $fieldsValues;
     private $entityIdValue;
     private $entityIdFieldName;
 
@@ -35,21 +39,24 @@ class RestEntityHandler extends RestManager
     private $deserilizationFormats = array(
         'application/json' => 'json',
         'application/xml' => 'xml',
-        'application/html' => 'xml'
+        'application/html' => 'json'
     );
 
     private $serializationFormats = array(
         'application/json' => 'json',
         'application/xml' => 'xml',
-        'application/html' => 'xml'
+        'application/html' => 'json'
     );
 
     /**
      * RestEntityHandler constructor.
      * @param array $config
      * @param SessionInterface $session
+     * @param array $bundles
+     * @param Serializer $serializer
+     * @param RequestStack $requestStack
      */
-    public function __construct( array $config, SessionInterface $session, array $bundles, Serializer $serializer ){
+    public function __construct( array $config, SessionInterface $session, array $bundles, Serializer $serializer, RequestStack $requestStack ){
 
         parent::__construct( $config['managers'][ $config['default_manager'] ], $session );
 
@@ -57,6 +64,8 @@ class RestEntityHandler extends RestManager
         $this->session = $session;
         $this->bundles = $bundles;
         $this->serializer = $serializer;
+        $this->attibutesBag = $requestStack->getMasterRequest()->attributes;
+        $this->annotationReader = new AnnotationReader();
 
         return $this;
 
@@ -88,8 +97,6 @@ class RestEntityHandler extends RestManager
     /**
      * @param $strPersistenceObjectName
      * @return $this
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
      */
     public function getRepository( $strPersistenceObjectName ){
 
@@ -320,7 +327,6 @@ class RestEntityHandler extends RestManager
     private function readClassAnnotations( $classNamespace ){
 
         $objClassInstanceReflection = new \ReflectionClass( $classNamespace );
-        $this->annotationReader = new AnnotationReader();
 
         if( !empty( $this->annotationReader->getClassAnnotations( $objClassInstanceReflection ) ) ){
 
@@ -346,21 +352,36 @@ class RestEntityHandler extends RestManager
 
             foreach( $objClassInstanceReflection->getProperties() as $property ){
 
+                $property->setAccessible( true );
+
                 $arrPropertiesAnnotations = $this->annotationReader->getPropertyAnnotations( $property );
 
                 foreach( $arrPropertiesAnnotations as $propertyAnnotation ){
 
-                    $property->setAccessible( true );
-
                     if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Field" ){
 
-                        $this->fieldsMap[ $property->getName() ] = $propertyAnnotation->getName();
+                        $this->fieldsMap[ $property->getName() ] = $propertyAnnotation->getTarget();
+                        $this->fieldsType[ $property->getName() ] = $propertyAnnotation->getType();
 
+                        if( is_object( $classNamespace ) ){
+
+                            $this->fieldsValues[ $property->getName() ] = $property->getValue( $classNamespace );
+
+                        }else{
+
+                            $this->fieldsValues[ $property->getName() ] = null;
+
+                        }
                     }
 
                     if( get_class( $propertyAnnotation ) == "ALC\\EntityRestClientBundle\\Annotations\\Id" ){
 
-                        $this->entityIdValue = $property->getValue( $classNamespace );
+                        if( is_object( $classNamespace ) ){
+
+                            $this->entityIdValue = $property->getValue( $classNamespace );
+
+                        }
+
                         $this->entityIdFieldName = $property->getName();
 
                     }
@@ -369,6 +390,9 @@ class RestEntityHandler extends RestManager
 
             }
 
+            $this->attibutesBag->set( 'alc_entity_rest_client.handler.fieldsMap', $this->fieldsMap );
+            $this->attibutesBag->set( 'alc_entity_rest_client.handler.fieldsType', $this->fieldsType );
+            $this->attibutesBag->set( 'alc_entity_rest_client.handler.fieldsValues', $this->fieldsValues );
         }
 
     }
@@ -409,6 +433,14 @@ class RestEntityHandler extends RestManager
                 throw new RunTimeException(400, "Unserialized format <" . $response->getHeader('content-type') . "> is not supported.", null, $response->getHeaders(), 0 );
 
             }
+
+            $className = str_replace( "array", "", $objClass );
+            $className = str_replace( "<", "", $className );
+            $className = str_replace( ">", "", $className );
+
+            $this->readClassAnnotations( $className );
+
+            $this->attibutesBag->set( 'alc_entity_rest_client.procesedEntity', $className );
 
             return $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
 
