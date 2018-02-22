@@ -52,7 +52,7 @@ class UsersController extends FOSRestController
 
     public function postUsersAction(Request $objRequest){
 
-        $objUser = $this->get('alc_entity_rest_client.serializer')->deserialize( $objRequest->getContent(), 'json', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
+        $objUser = $this->get('fos_rest.serializer')->deserialize( $objRequest->getContent(), 'json', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
 
         $objValidationErrors = $this->get('validator')->validate( $objUser );
 

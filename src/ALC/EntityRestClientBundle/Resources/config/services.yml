@@ -8,7 +8,7 @@ services:
         tags:
             - { name: 'jms_serializer.event_listener', event: 'serializer.pre_deserialize' }
             - { name: 'jms_serializer.event_listener', event: 'serializer.pre_serialize' }
-    alc_entity_rest_client.serializer:
+    fos_rest.serializer:
         class: ALC\EntityRestClientBundle\Services\Serializer\Serializer
         arguments:
             - "@request_stack"
