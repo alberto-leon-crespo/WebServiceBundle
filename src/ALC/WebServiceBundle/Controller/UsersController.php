@@ -25,11 +25,11 @@ class UsersController extends FOSRestController
 
         if( empty( $arrFilters ) ){
 
-            $arrUsers = $objUsersRespository->findAll( 'object', 'array<ALC\\WebServiceBundle\\Entity\\Users\\Users>' );
+            $arrUsers = $objUsersRespository->findAll( 'object', 'array<ALC\\WebServiceBundle\\Entity\\Users\\Users>', false );
 
         }else{
 
-            $arrUsers = $objUsersRespository->findBy( $arrFilters, 'object', 'array<ALC\\WebServiceBundle\\Entity\\Users\\Users>' );
+            $arrUsers = $objUsersRespository->findBy( $arrFilters, 'object', 'array<ALC\\WebServiceBundle\\Entity\\Users\\Users>', false );
 
         }
 

@@ -9,6 +9,7 @@
 namespace ALC\EntityRestClientBundle\Services\Serializer;
 
 use ALC\EntityRestClientBundle\Utils\ArrayUtilsClass;
+use FOS\RestBundle\Context\Context;
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
@@ -17,7 +18,7 @@ use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\Common\Annotations\AnnotationReader;
 
-class Serializer
+class Serializer implements \FOS\RestBundle\Serializer\Serializer
 {
     private $serializationContextFactory;
 
@@ -130,13 +131,13 @@ class Serializer
         return $this;
     }
 
-    public function serialize( $data, $format ){
+    public function serialize( $data, $format, Context $context = null ){
 
         return $this->serializer->serialize( $data, $format, $this->serializationContextFactory );
 
     }
 
-    public function deserialize( $data, $format, $objectType, $objectsToArray = true ){
+    public function deserialize( $data, $format, $objectType, Context $context = null, $objectsToArray = true ){
 
         $response = $this->serializer->deserialize( $data, $objectType, $format );
 
