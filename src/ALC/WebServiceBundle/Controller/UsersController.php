@@ -10,6 +10,7 @@ namespace ALC\WebServiceBundle\Controller;
 
 use ALC\WebServiceBundle\Utils\ArrayUtils;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -57,6 +58,8 @@ class UsersController extends FOSRestController
 
         if( $objValidationErrors->count() > 0 ) {
 
+            $arrValidationErrors = [];
+
             /**
              * @var $validacion \
              */
@@ -66,7 +69,7 @@ class UsersController extends FOSRestController
 
             }
 
-            return ArrayUtils::recursiveObjectToArray( $arrValidationErrors );
+            return View::create( $arrValidationErrors, 200 );
         }
 
         $em = $this->get('alc_entity_rest_client.handler')->getManager();
@@ -75,8 +78,6 @@ class UsersController extends FOSRestController
          * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users
          */
         $objUser = $em->persist( $objUser, 'object', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
-
-        $em->flush();
 
         return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $objUser->getIdUsuario() ] );
 

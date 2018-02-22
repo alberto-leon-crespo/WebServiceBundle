@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: root
+ * User: aleon
  * Date: 12/02/18
  * Time: 19:54
  */
@@ -132,14 +132,28 @@ class RestEntityHandler extends RestManager
 
     }
 
-    public function find( $id, $format = 'json', $objClass = null, $objectsToArray = true )
+    /**
+     * @param $id
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
+     */
+    public function find( $id, $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $response = $this->get( $this->path . "/" . $id, array(), $this->headers );
 
         return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
-    public function findBy( array $arrFilters, $format = 'json', $objClass = null, $objectsToArray = true )
+    /**
+     * @param array $arrFilters
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
+     */
+    public function findBy( array $arrFilters, $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $arrParams = $this->matchEntityFieldsWithResourceFields( $arrFilters );
 
@@ -148,7 +162,14 @@ class RestEntityHandler extends RestManager
         return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
-    public function findOneBy( array $arrFilters, $format = 'json', $objClass = null, $objectsToArray = true )
+    /**
+     * @param array $arrFilters
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return mixed
+     */
+    public function findOneBy( array $arrFilters, $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $arrParams = $this->matchEntityFieldsWithResourceFields( $arrFilters );
 
@@ -157,7 +178,13 @@ class RestEntityHandler extends RestManager
         return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray )[0];
     }
 
-    public function findAll( $format = 'json', $objClass = null, $objectsToArray = true )
+    /**
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
+     */
+    public function findAll( $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $response = $this->get( $this->path, array(), $this->headers );
 
@@ -165,9 +192,13 @@ class RestEntityHandler extends RestManager
     }
 
     /**
-     * {@inheritdoc}
+     * @param $object
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
      */
-    public function persist( $object, $format = 'json', $objClass = null, $objectsToArray = true )
+    public function persist( $object, $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $this->readClassAnnotations( $object );
 
@@ -208,9 +239,13 @@ class RestEntityHandler extends RestManager
     }
 
     /**
-     * {@inheritdoc}
+     * @param $object
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
      */
-    public function remove( $object, $format = 'json', $objClass = null, $objectsToArray = true )
+    public function remove( $object, $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $this->readClassAnnotations( $object );
 
@@ -237,7 +272,14 @@ class RestEntityHandler extends RestManager
         return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
-    public function merge( $object, $format = 'json', $objClass = null, $objectsToArray = true ){
+    /**
+     * @param $object
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
+     */
+    public function merge( $object, $format = 'json', $objClass = null, $objectsToArray = false ){
 
         $this->readClassAnnotations( $object );
 
@@ -293,9 +335,13 @@ class RestEntityHandler extends RestManager
     }
 
     /**
-     * {@inheritdoc}
+     * @param $object
+     * @param string $format
+     * @param null $objClass
+     * @param bool $objectsToArray
+     * @return array|\JMS\Serializer\scalar|mixed|object
      */
-    public function refresh( &$object, $format = 'json', $objClass = null, $objectsToArray = true )
+    public function refresh( &$object, $format = 'json', $objClass = null, $objectsToArray = false )
     {
         $this->readClassAnnotations( $object );
 
@@ -325,6 +371,9 @@ class RestEntityHandler extends RestManager
         return $object;
     }
 
+    /**
+     * @param $classNamespace
+     */
     private function readClassAnnotations( $classNamespace ){
 
         $objClassInstanceReflection = new \ReflectionClass( $classNamespace );
@@ -440,8 +489,6 @@ class RestEntityHandler extends RestManager
             $className = str_replace( ">", "", $className );
 
             $this->readClassAnnotations( $className );
-
-            $this->attibutesBag->set( 'alc_entity_rest_client.procesedEntity', $className );
 
             $response = $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
 

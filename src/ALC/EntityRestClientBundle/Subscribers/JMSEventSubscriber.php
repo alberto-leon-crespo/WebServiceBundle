@@ -12,6 +12,7 @@ namespace ALC\EntityRestClientBundle\Subscribers;
 use Doctrine\Common\Annotations\AnnotationReader;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
+use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
 
@@ -41,6 +42,10 @@ class JMSEventSubscriber implements EventSubscriberInterface
             array(
                 'event' => 'serializer.pre_deserialize',
                 'method' => 'onserializerPreDeserialize'
+            ),
+            array(
+                'event' => 'serializer.pre_serialize',
+                'method' => 'onserializerPreSerialize'
             )
         );
     }
@@ -90,6 +95,41 @@ class JMSEventSubscriber implements EventSubscriberInterface
         $context->pushClassMetadata( $classMetadata );
 
         return $event;
+
+    }
+
+    public function onserializerPreSerialize( PreSerializeEvent $event ){
+
+        $type = $event->getType();
+        $context = $event->getContext();
+        $data = $event->getObject();
+        $visitor = $event->getVisitor();
+
+        $classMetadata = $event->getContext()->getMetadataFactory()->getMetadataForClass( $type['name'] );
+
+        $this->readClassAnnotations( $type['name'] );
+
+        foreach( $this->fieldsMap as $originalFieldName => $targetFieldName ){
+
+            if( array_key_exists( $originalFieldName, $this->fieldsMap ) ){
+
+                $classMetadata->propertyMetadata[$originalFieldName]->serializedName = $targetFieldName;
+                $classMetadata->propertyMetadata[$originalFieldName]->xmlEntryName = $targetFieldName;
+                $classMetadata->propertyMetadata[$originalFieldName]->xmlCollectionSkipWhenEmpty = false;
+                $classMetadata->propertyMetadata[$originalFieldName]->xmlElementCData = false;
+
+                $classMetadata->propertyMetadata[$originalFieldName]->type = array(
+                    'name' => $this->fieldsType[$originalFieldName],
+                    'params' => []
+                );
+
+                unset( $this->fieldsMap[ $originalFieldName ] );
+
+            }
+
+        }
+
+        return $classMetadata->serialize();
 
     }
 

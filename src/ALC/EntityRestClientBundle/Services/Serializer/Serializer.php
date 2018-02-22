@@ -137,7 +137,7 @@ class Serializer implements \FOS\RestBundle\Serializer\Serializer
 
     }
 
-    public function deserialize( $data, $format, $objectType, Context $context = null, $objectsToArray = true ){
+    public function deserialize( $data, $format, $objectType, Context $context = null, $objectsToArray = false ){
 
         $response = $this->serializer->deserialize( $data, $objectType, $format );
 
