@@ -6,7 +6,7 @@
  * Time: 6:16
  */
 
-namespace ALC\EntityRestClientBundle\Listeners;
+namespace ALC\EntityRestClientBundle\Subscribers;
 
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -14,9 +14,8 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 use JMS\Serializer\Construction\UnserializeObjectConstructor;
-use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 
-class PreDeserialize implements EventSubscriberInterface
+class JMSEventSubscriber implements EventSubscriberInterface
 {
     private $fieldsMap;
     private $fieldsValues;

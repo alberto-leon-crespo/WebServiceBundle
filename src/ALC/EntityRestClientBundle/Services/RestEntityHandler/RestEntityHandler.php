@@ -10,6 +10,7 @@ namespace ALC\EntityRestClientBundle\Services\RestEntityHandler;
 
 use ALC\EntityRestClientBundle\RestManager;
 use ALC\EntityRestClientBundle\Services\RestEntityHandler\Exception\InvalidParamsException;
+use ALC\EntityRestClientBundle\Utils\ArrayUtilsClass;
 use GuzzleHttp\Message\Response;
 use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -131,42 +132,42 @@ class RestEntityHandler extends RestManager
 
     }
 
-    public function find( $id, $format = 'json', $objClass = null )
+    public function find( $id, $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $response = $this->get( $this->path . "/" . $id, array(), $this->headers );
 
-        return $this->deserializeResponse( $response, $format, $objClass );
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
-    public function findBy( array $arrFilters, $format = 'json', $objClass = null )
+    public function findBy( array $arrFilters, $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $arrParams = $this->matchEntityFieldsWithResourceFields( $arrFilters );
 
         $response = $this->get( $this->path, $arrParams, $this->headers );
 
-        return $this->deserializeResponse( $response, $format, $objClass );
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
-    public function findOneBy( array $arrFilters, $format = 'json', $objClass = null )
+    public function findOneBy( array $arrFilters, $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $arrParams = $this->matchEntityFieldsWithResourceFields( $arrFilters );
 
         $response = $this->get( $this->path, $arrParams, $this->headers );
 
-        return $this->deserializeResponse( $response, $format, $objClass )[0];
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray )[0];
     }
 
-    public function findAll( $format = 'json', $objClass = null )
+    public function findAll( $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $response = $this->get( $this->path, array(), $this->headers );
 
-        return $this->deserializeResponse( $response, $format, $objClass );
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function persist( $object, $format = 'json', $objClass = null )
+    public function persist( $object, $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $this->readClassAnnotations( $object );
 
@@ -203,13 +204,13 @@ class RestEntityHandler extends RestManager
 
         }
 
-        return $this->deserializeResponse( $response, $format, $objClass );
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove( $object, $format = 'json', $objClass = null )
+    public function remove( $object, $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $this->readClassAnnotations( $object );
 
@@ -233,10 +234,10 @@ class RestEntityHandler extends RestManager
 
         $response = $this->detete( $this->path . '/' . $this->entityIdValue, $arrHeaders );
 
-        return $this->deserializeResponse( $response, $format, $objClass );
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
-    public function merge( $object, $format = 'json', $objClass = null ){
+    public function merge( $object, $format = 'json', $objClass = null, $objectsToArray = true ){
 
         $this->readClassAnnotations( $object );
 
@@ -288,17 +289,17 @@ class RestEntityHandler extends RestManager
 
         }
 
-        return $this->deserializeResponse( $response, $format, $objClass );
+        return $this->deserializeResponse( $response, $format, $objClass, $objectsToArray );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function refresh( &$object, $format = 'json', $objClass = null )
+    public function refresh( &$object, $format = 'json', $objClass = null, $objectsToArray = true )
     {
         $this->readClassAnnotations( $object );
 
-        $refreshingData = $this->find( $this->entityIdValue, $format, $objClass );
+        $refreshingData = $this->find( $this->entityIdValue, $format, $objClass, $objectsToArray );
 
         $idFieldName = $this->entityIdFieldName;
         $keyExist = false;
@@ -403,7 +404,7 @@ class RestEntityHandler extends RestManager
      * @param null $objClass
      * @return array|\JMS\Serializer\scalar|mixed|object
      */
-    private function deserializeResponse( Response $response, $format = 'json', $objClass = null ){
+    private function deserializeResponse( Response $response, $format = 'json', $objClass = null, $objectsToArray = true ){
 
         if( $format == 'json' ){
 
@@ -442,7 +443,17 @@ class RestEntityHandler extends RestManager
 
             $this->attibutesBag->set( 'alc_entity_rest_client.procesedEntity', $className );
 
-            return $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
+            $response = $this->serializer->deserialize( (string)$response->getBody(), $objClass, $deserializeFormat );
+
+            if( $objectsToArray ){
+
+                return ArrayUtilsClass::recursiveObjectToArray( $response );
+
+            }else{
+
+                return $response;
+
+            }
 
         }
 
