@@ -45,16 +45,13 @@ class UsersController extends FOSRestController
 
         $arrUser = $objUsersRespository->find( $userId, 'object', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
 
-        return ArrayUtils::recursiveObjectToArray( $arrUser );
+        return $arrUser;
 
     }
 
     public function postUsersAction(Request $objRequest){
 
-        $objUser =
-            $this
-                ->get('alc_entity_rest_client.request_entity_decoder')
-                ->decodeAndSerializeRequest( 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
+        $objUser = $this->get('alc_entity_rest_client.serializer')->deserialize( $objRequest->getContent(), 'json', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
 
         $objValidationErrors = $this->get('validator')->validate( $objUser );
 
