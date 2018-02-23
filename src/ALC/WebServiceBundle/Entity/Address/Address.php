@@ -8,7 +8,7 @@
 
 namespace ALC\WebServiceBundle\Entity\Address;
 
-use ALC\EntityRestClientBundle\Annotations\Field;
+use ALC\RestEntityManager\Annotations\Field;
 
 class Address
 {

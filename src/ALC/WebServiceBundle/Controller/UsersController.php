@@ -20,7 +20,7 @@ class UsersController extends FOSRestController
 
         $arrFilters = $objRequest->query->all();
 
-        $objEntityManager = $this->get('alc_entity_rest_client.handler')->getManager();
+        $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
@@ -40,7 +40,7 @@ class UsersController extends FOSRestController
 
     public function getUserAction(Request $objRequest, $userId ){
 
-        $objEntityManager = $this->get('alc_entity_rest_client.handler')->getManager();
+        $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
@@ -72,7 +72,7 @@ class UsersController extends FOSRestController
             return View::create( $arrValidationErrors, 200 );
         }
 
-        $em = $this->get('alc_entity_rest_client.handler')->getManager();
+        $em = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         /**
          * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users

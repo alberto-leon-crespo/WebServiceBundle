@@ -89,7 +89,7 @@ fos_rest:
         enabled: true
 #        exception_controller: 'InterMundial\WebServiceBundle\Controller\ExcepcionesController::normalizarAction'
 
-alc_entity_rest_client:
+alc_rest_entity_manager:
     default_manager: default
     managers:
         default:
