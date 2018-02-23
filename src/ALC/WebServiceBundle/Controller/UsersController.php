@@ -10,6 +10,7 @@ namespace ALC\WebServiceBundle\Controller;
 
 use ALC\WebServiceBundle\Utils\ArrayUtils;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,7 +20,7 @@ class UsersController extends FOSRestController
 
         $arrFilters = $objRequest->query->all();
 
-        $objEntityManager = $this->get('alc_entity_rest_client.handler')->getManager();
+        $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
@@ -39,7 +40,7 @@ class UsersController extends FOSRestController
 
     public function getUserAction(Request $objRequest, $userId ){
 
-        $objEntityManager = $this->get('alc_entity_rest_client.handler')->getManager();
+        $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
@@ -51,11 +52,13 @@ class UsersController extends FOSRestController
 
     public function postUsersAction(Request $objRequest){
 
-        $objUser = $this->get('alc_entity_rest_client.serializer')->deserialize( $objRequest->getContent(), 'json', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
+        $objUser = $this->get('fos_rest.serializer')->deserialize( $objRequest->getContent(), 'json', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
 
         $objValidationErrors = $this->get('validator')->validate( $objUser );
 
         if( $objValidationErrors->count() > 0 ) {
+
+            $arrValidationErrors = [];
 
             /**
              * @var $validacion \
@@ -66,17 +69,15 @@ class UsersController extends FOSRestController
 
             }
 
-            return ArrayUtils::recursiveObjectToArray( $arrValidationErrors );
+            return View::create( $arrValidationErrors, 200 );
         }
 
-        $em = $this->get('alc_entity_rest_client.handler')->getManager();
+        $em = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         /**
          * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users
          */
         $objUser = $em->persist( $objUser, 'object', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
-
-        $em->flush();
 
         return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $objUser->getIdUsuario() ] );
 

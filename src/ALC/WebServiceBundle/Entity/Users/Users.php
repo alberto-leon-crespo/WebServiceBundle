@@ -8,7 +8,7 @@
 
 namespace ALC\WebServiceBundle\Entity\Users;
 
-use ALC\EntityRestClientBundle\Annotations as Rest;
+use ALC\RestEntityManager\Annotations as Rest;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
