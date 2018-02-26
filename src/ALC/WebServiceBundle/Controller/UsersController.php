@@ -22,6 +22,9 @@ class UsersController extends FOSRestController
 
         $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
+        /**
+         * @var $objUsersRespository \ALC\RestEntityManager\Services\RestEntityHandler\RestEntityHandler|\ALC\WebServiceBundle\Entity\Users\UsersRepository
+         */
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
         if( empty( $arrFilters ) ){
