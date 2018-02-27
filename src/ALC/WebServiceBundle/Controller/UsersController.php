@@ -72,7 +72,7 @@ class UsersController extends FOSRestController
 
             }
 
-            return View::create( $arrValidationErrors, 200 );
+            return View::create( $arrValidationErrors, 400 );
         }
 
         $em = $this->get('alc_rest_entity_manager.handler')->getManager();
@@ -84,5 +84,37 @@ class UsersController extends FOSRestController
 
         return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $objUser->getIdUsuario() ] );
 
+    }
+
+    public function putUsersAction(Request $objRequest, $idUsuario){
+
+        $objUser = $this->get('fos_rest.serializer')->deserialize( $objRequest->getContent(), 'json', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
+
+        $objValidationErrors = $this->get('validator')->validate( $objUser );
+
+        if( $objValidationErrors->count() > 0 ) {
+
+            $arrValidationErrors = [];
+
+            /**
+             * @var $validacion \
+             */
+            foreach ($objValidationErrors as $validacion) {
+
+                $arrValidationErrors['errors'][$validacion->getPropertyPath()] = $validacion->getMessage();
+
+            }
+
+            return View::create( $arrValidationErrors, 400 );
+        }
+
+        $em = $this->get('alc_rest_entity_manager.handler')->getManager();
+
+        /**
+         * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users
+         */
+        $objUser = $em->persist( $objUser, 'object', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
+
+        return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $objUser->getIdUsuario() ] );
     }
 }
