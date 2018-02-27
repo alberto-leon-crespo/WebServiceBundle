@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Rest\Resource("users")
+ * @Rest\Repository("ALC\WebServiceBundle\Entity\Users\UsersRepository")
  */
 class Users
 {
