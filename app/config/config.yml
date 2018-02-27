@@ -93,9 +93,8 @@ alc_rest_entity_manager:
     default_manager: default
     managers:
         default:
-            name: 'Default connection'
+            name: 'default'
             host: 'https://jsonplaceholder.typicode.com/'
-            session_name: 'default'
             session_timeout: 7200
             custom_params:
                 secret_api_key: ko_0vYcw02JxiMGZ7vSADPOSH-fSDRgSsPJWmYFXu4v437hEk2ELFLOGLBlmY2UWLWMnq
