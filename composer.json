@@ -19,14 +19,9 @@
             "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php"
         ]
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://mastercss@bitbucket.org/mastercss/restentitymanager.git"
-        }
-    ],
     "require": {
         "php": ">=5.5.9",
+        "alberto-leon-crespo/rest-entity-manager": "^1.0",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/orm": "^2.5",
         "friendsofsymfony/rest-bundle": "^2.3",
@@ -39,8 +34,7 @@
         "symfony/polyfill-apcu": "^1.0",
         "symfony/swiftmailer-bundle": "^2.6.4",
         "symfony/symfony": "3.4.*",
-        "twig/twig": "^1.0||^2.0",
-        "ALC/RestEntityManager": "dev-master"
+        "twig/twig": "^1.0||^2.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

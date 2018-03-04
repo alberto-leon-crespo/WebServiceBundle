@@ -4,16 +4,22 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "923fc2c9e4aa191357fde14679677a87",
-    "content-hash": "3b6ce46948ab39ea9c1681d22342592c",
+    "hash": "eca0a22954d75335d632ee25135321fb",
+    "content-hash": "5fa7bad957992954a65b4c162184415e",
     "packages": [
         {
-            "name": "ALC/RestEntityManager",
-            "version": "dev-master",
+            "name": "alberto-leon-crespo/rest-entity-manager",
+            "version": "1.0",
             "source": {
                 "type": "git",
-                "url": "https://mastercss@bitbucket.org/mastercss/restentitymanager.git",
-                "reference": "93a76a29c99f443ab938fc20e6d077bfe5ce4e60"
+                "url": "https://github.com/alberto-leon-crespo/rest-entity-manager.git",
+                "reference": "e82fbd34fe369c4ead9290a05600fb36e4e54e65"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alberto-leon-crespo/rest-entity-manager/zipball/e82fbd34fe369c4ead9290a05600fb36e4e54e65",
+                "reference": "e82fbd34fe369c4ead9290a05600fb36e4e54e65",
+                "shasum": ""
             },
             "require": {
                 "doctrine/doctrine-bundle": "^1.6",
@@ -29,6 +35,7 @@
                     "ALC\\RestEntityManager\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -40,13 +47,13 @@
             ],
             "description": "Library to consume webservices based on symfony entities and fosrestbundle.",
             "keywords": [
-                "API",
-                "REST",
                 "RestEntity",
-                "Restfull",
-                "Webservices"
+                "api",
+                "rest",
+                "restfull",
+                "webservices"
             ],
-            "time": "2018-02-28 21:25:24"
+            "time": "2018-03-04 17:42:56"
         },
         {
             "name": "composer/ca-bundle",
@@ -3160,9 +3167,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "alc/restentitymanager": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
