@@ -81,6 +81,8 @@ fos_rest:
             xml: true
         templating_formats:
             html: true
+    service:
+        serializer: alc_rest_entity_manager.serializer
     routing_loader:
         default_format: json
     serializer:
