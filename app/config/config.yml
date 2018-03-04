@@ -72,7 +72,7 @@ fos_rest:
     body_listener: true
     format_listener:
         rules:
-            - { path: '^/', priorities: ['json','xml'], fallback_format: json, prefer_extension: true }
+            - { path: '^/', priorities: ['json','xml','html'], fallback_format: json, prefer_extension: true }
     param_fetcher_listener: true
     view:
         view_response_listener: 'force'
@@ -87,7 +87,7 @@ fos_rest:
         serialize_null: true
     exception:
         enabled: true
-#        exception_controller: 'InterMundial\WebServiceBundle\Controller\ExcepcionesController::normalizarAction'
+        exception_controller: 'ALC\WebServiceBundle\Controller\ExceptionController::showAction'
 
 alc_rest_entity_manager:
     default_manager: default
