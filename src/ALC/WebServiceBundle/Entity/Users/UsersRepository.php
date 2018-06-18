@@ -14,10 +14,13 @@ class UsersRepository extends RestRepository
 {
     public function listadoUsuariosWithVocalA(){
 
-        $response = $this->get( 'users', array() );
+        $response = $this->restManager->get( 'users', array() );
 
         $arrUsers = $this->serializer->deserialize( $response->getBody()->getContents(), 'array<ALC\WebServiceBundle\Entity\Users\Users>', 'json' );
 
+        /**
+         * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users
+         */
         foreach( $arrUsers as $key => $objUser ){
 
             if( mb_strpos( $objUser->getNombre(), 'a', null, 'utf8' ) === false ){

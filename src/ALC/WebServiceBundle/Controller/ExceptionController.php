@@ -29,6 +29,7 @@ class ExceptionController extends FOSRestController
                 'code' => $exception->getCode(),
                 'message' => $exception->getMessage(),
                 'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
                 'trace' => $exception->getTrace()
             )
         );
@@ -59,7 +60,7 @@ class ExceptionController extends FOSRestController
 
         }
 
-        $view = View::create( $responseArray, 200 );
+        $view = View::create( $responseArray, 500 );
 
         $view->setFormat( $requestFormat );
 

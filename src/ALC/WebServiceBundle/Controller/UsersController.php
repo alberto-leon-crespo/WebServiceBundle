@@ -8,11 +8,9 @@
 
 namespace ALC\WebServiceBundle\Controller;
 
-use ALC\WebServiceBundle\Utils\ArrayUtils;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends FOSRestController
 {
@@ -20,11 +18,11 @@ class UsersController extends FOSRestController
 
         $arrFilters = $objRequest->query->all();
 
+        /**
+         * @var $objEntityManager \ALC\RestEntityManager\Services\RestEntityHandler\RestEntityHandler|\ALC\WebServiceBundle\Entity\Users\UsersRepository
+         */
         $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
-        /**
-         * @var $objUsersRespository \ALC\RestEntityManager\Services\RestEntityHandler\RestEntityHandler|\ALC\WebServiceBundle\Entity\Users\UsersRepository
-         */
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
 
         if( empty( $arrFilters ) ){
@@ -43,6 +41,9 @@ class UsersController extends FOSRestController
 
     public function getUserAction(Request $objRequest, $userId ){
 
+        /**
+         * @var $objEntityManager \ALC\RestEntityManager\Services\RestEntityHandler\RestEntityHandler|\ALC\WebServiceBundle\Entity\Users\UsersRepository
+         */
         $objEntityManager = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         $objUsersRespository = $objEntityManager->getRepository('ALCWebServiceBundle:Users\Users');
@@ -75,14 +76,18 @@ class UsersController extends FOSRestController
             return View::create( $arrValidationErrors, 400 );
         }
 
+        /**
+         * @var $em \ALC\RestEntityManager\Services\RestEntityHandler\RestEntityHandler|\ALC\WebServiceBundle\Entity\Users\UsersRepository
+         */
         $em = $this->get('alc_rest_entity_manager.handler')->getManager();
 
-        /**
-         * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users
-         */
         $objUser = $em->persist( $objUser, 'object', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
 
-        return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $objUser->getIdUsuario() ] );
+        $userId = (int)$objUser->getIdUsuario();
+
+        $userId--;
+
+        return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $userId ] );
 
     }
 
@@ -108,6 +113,9 @@ class UsersController extends FOSRestController
             return View::create( $arrValidationErrors, 400 );
         }
 
+        /**
+         * @var $em \ALC\RestEntityManager\Services\RestEntityHandler\RestEntityHandler|\ALC\WebServiceBundle\Entity\Users\UsersRepository
+         */
         $em = $this->get('alc_rest_entity_manager.handler')->getManager();
 
         /**
@@ -115,6 +123,10 @@ class UsersController extends FOSRestController
          */
         $objUser = $em->persist( $objUser, 'object', 'ALC\\WebServiceBundle\\Entity\\Users\\Users' );
 
-        return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $objUser->getIdUsuario() ] );
+        $userId = (int)$objUser->getIdUsuario();
+
+        $userId--;
+
+        return $this->redirectToRoute( 'get_user', [ "_locale" => $objRequest->getLocale(), "userId" => $userId ] );
     }
 }
