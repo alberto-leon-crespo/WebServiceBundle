@@ -98,6 +98,15 @@ alc_rest_entity_manager:
             name: 'default'
             host: 'https://jsonplaceholder.typicode.com/'
             session_timeout: 7200
+            avanced:
+                filtering:
+                    ignored_parameters: [_fields,_sort,_page,_limit]
+                    parameters_map:
+                        maps:
+                          - { origin: _fields, destination: selection }
+                          - { origin: _page, destination: _page }
+                          - { origin: _limit, destination: _limit }
+                          - { origin: _sort, interceptor: ALC\WebServiceBundle\Interceptors\SortParametersInterceptor::parseSortFields }
             custom_params:
                 secret_api_key: ko_0vYcw02JxiMGZ7vSADPOSH-fSDRgSsPJWmYFXu4v437hEk2ELFLOGLBlmY2UWLWMnq
                 realm_id: rl_0vYcwJKtCKicRw5gaD55ux
