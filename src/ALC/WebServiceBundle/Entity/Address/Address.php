@@ -9,6 +9,7 @@
 namespace ALC\WebServiceBundle\Entity\Address;
 
 use ALC\RestEntityManager\Annotations\Field;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class Address
 {
@@ -34,6 +35,7 @@ class Address
 
     /**
      * @Field(target="geo",type="ALC\WebServiceBundle\Entity\Geo\Geo")
+     * @Assert\Valid()
      */
     private $geo;
 
@@ -88,6 +90,42 @@ class Address
     public function setCiudad($ciudad)
     {
         $this->ciudad = $ciudad;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCodigoPostal()
+    {
+        return $this->codigoPostal;
+    }
+
+    /**
+     * @param mixed $codigoPostal
+     * @return Address
+     */
+    public function setCodigoPostal($codigoPostal)
+    {
+        $this->codigoPostal = $codigoPostal;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGeo()
+    {
+        return $this->geo;
+    }
+
+    /**
+     * @param mixed $geo
+     * @return Address
+     */
+    public function setGeo($geo)
+    {
+        $this->geo = $geo;
         return $this;
     }
 }

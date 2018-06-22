@@ -66,7 +66,9 @@ class UsersController extends FOSRestController
 
     public function postUsersAction(Request $objRequest)
     {
-
+        /**
+         * @var $objUser \ALC\WebServiceBundle\Entity\Users\Users
+         */
         $objUser = $this
             ->get('alc_rest_entity_manager.serializer')
             ->deserialize(

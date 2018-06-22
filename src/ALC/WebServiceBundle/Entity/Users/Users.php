@@ -47,6 +47,7 @@ class Users
 
     /**
      * @Rest\Field(target="address",type="ALC\WebServiceBundle\Entity\Address\Address")
+     * @Assert\Valid()
      */
     private $direccion;
 
@@ -62,6 +63,7 @@ class Users
 
     /**
      * @Rest\Field(target="company",type="ALC\WebServiceBundle\Entity\Companies\Companies")
+     * @Assert\Valid()
      */
     private $compania;
 

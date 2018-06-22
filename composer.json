@@ -21,7 +21,7 @@
     },
     "require": {
         "php": ">=5.5.9",
-        "alberto-leon-crespo/rest-entity-manager": "^1.1",
+        "alberto-leon-crespo/rest-entity-manager": "dev-master",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/orm": "^2.5",
         "friendsofsymfony/rest-bundle": "^2.3",

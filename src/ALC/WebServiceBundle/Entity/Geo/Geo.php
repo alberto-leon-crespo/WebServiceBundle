@@ -9,11 +9,18 @@
 namespace ALC\WebServiceBundle\Entity\Geo;
 
 use ALC\RestEntityManager\Annotations\Field;
+use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class Geo
+ * @package ALC\WebServiceBundle\Entity\Geo
+ */
 class Geo
 {
     /**
      * @Field(target="lat",type="string")
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      */
     private $latitud;
 

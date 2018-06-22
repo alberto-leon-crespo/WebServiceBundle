@@ -8,9 +8,9 @@
 
 namespace ALC\WebServiceBundle\Interceptors;
 
-use ALC\RestEntityManager\ParamInterceptor;
+use ALC\RestEntityManager\ParameterInterceptor;
 
-class SortParametersInterceptor extends ParamInterceptor
+class SortParametersInterceptor extends ParameterInterceptor
 {
     public function parseSortFields($value)
     {
@@ -25,9 +25,15 @@ class SortParametersInterceptor extends ParamInterceptor
             $order = 'asc';
         }
 
-        return array(
-            '_sort' => $this->arrFieldsValues[$fieldName],
-            '_order' => $order
-        );
+        $arrFinalParams = $this->getMetadataClassReader()->matchEntityFieldsWithResourcesFieldsRecursive( [ $fieldName => $order ] );
+
+        $arrayMatch = array();
+
+        foreach( $arrFinalParams as $campoOrdenar => $metodoOrdenacion ){
+            $arrayMatch['_sort'] = $campoOrdenar;
+            $arrayMatch['_order'] = $metodoOrdenacion;
+        };
+
+        return $arrayMatch;
     }
 }
