@@ -108,5 +108,8 @@ alc_rest_entity_manager:
                           - { origin: _limit, destination: _limit }
                           - { origin: _sort, interceptor: ALC\WebServiceBundle\Interceptors\SortParametersInterceptor::parseSortFields }
             custom_params:
-                secret_api_key: ko_0vYcw02JxiMGZ7vSADPOSH-fSDRgSsPJWmYFXu4v437hEk2ELFLOGLBlmY2UWLWMnq
-                realm_id: rl_0vYcwJKtCKicRw5gaD55ux
+                secret_api_key: example1234
+            events_handlers:
+                tokens_inject_handler:
+                    event: before
+                    interceptor: 'ALC\WebServiceBundle\Interceptors\TokenInjector::injectToken'
